@@ -23,6 +23,8 @@ use {bits, der, limb, error};
 use untrusted;
 
 mod padding;
+#[cfg(feature = "rsa_signing")]
+pub mod encryption;
 
 // `RSA_PKCS1_SHA1` is intentionally not exposed.
 #[cfg(feature = "rsa_signing")]

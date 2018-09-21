@@ -393,6 +393,11 @@ impl<M> Elem<M, Unencoded> {
         limb::big_endian_from_limbs(&self.limbs, out)
     }
 
+    #[inline]
+    pub fn fit_be_bytes(&self, out: &mut [u8]) {
+        limb::fit_big_endian_from_limbs(&self.limbs, out)
+    }
+
     #[cfg(feature = "rsa_signing")]
     pub fn into_modulus<MM>(self) -> Result<Modulus<MM>, error::Unspecified> {
         Modulus::from_boxed_limbs(BoxedLimbs::minimal_width_from_unpadded(&self.limbs))

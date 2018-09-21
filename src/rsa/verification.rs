@@ -49,7 +49,7 @@ impl Key {
         // `pkcs1_encode` depends on this not being small. Otherwise,
         // `pkcs1_encode` would generate padding that is invalid (too few 0xFF
         // bytes) for very small keys.
-        const N_MIN_BITS: bits::BitLength = bits::BitLength(2048);
+        const N_MIN_BITS: bits::BitLength = bits::BitLength(1024);
 
         // Step 1 / Step a. XXX: SP800-56Br1 and SP800-89 require the length of
         // the public modulus to be exactly 2048 or 3072 bits, but we are more

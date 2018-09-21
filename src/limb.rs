@@ -208,6 +208,26 @@ pub fn big_endian_from_limbs(limbs: &[Limb], out: &mut [u8]) {
     }
 }
 
+pub fn fit_big_endian_from_limbs(limbs: &[Limb], out: &mut [u8]) {
+    let num_limbs = limbs.len();
+    let out_len = out.len();
+    assert!(out_len <= num_limbs * LIMB_BYTES);
+    let extra = num_limbs * LIMB_BYTES - out_len;
+    for i in 0..num_limbs {
+        let mut limb = limbs[i];
+        for j in 0..LIMB_BYTES {
+            let val = (limb & 0xff) as u8;
+            let offset = ((num_limbs - i - 1) * LIMB_BYTES) + (LIMB_BYTES - j - 1);
+            if offset >= extra {
+                out[offset - extra] = val;
+            } else {
+                assert_eq!(val, 0);
+            }
+            limb >>= 8;
+        }
+    }
+}
+
 extern {
     #[cfg(feature = "use_heap")]
     fn LIMBS_are_even(a: *const Limb, num_limbs: c::size_t) -> LimbMask;

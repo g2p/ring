@@ -398,7 +398,7 @@ impl PSSMetrics {
 
 // Mask-generating function MGF1 as described in
 // https://tools.ietf.org/html/rfc3447#appendix-B.2.1.
-fn mgf1(digest_alg: &'static digest::Algorithm, seed: &[u8], mask: &mut [u8])
+pub fn mgf1(digest_alg: &'static digest::Algorithm, seed: &[u8], mask: &mut [u8])
         -> Result<(), error::Unspecified> {
     let digest_len = digest_alg.output_len;
 
