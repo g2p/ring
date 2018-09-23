@@ -5,12 +5,19 @@ use super::N;
 use super::bigint;
 use super::padding;
 use super::verification::Key;
+use bits;
 use digest::{digest, SHA1};
 use error::Unspecified;
 use untrusted;
 
 /// RSAES-OAEP encryption
-pub fn encrypt(rng: &rand::SecureRandom, pub_key: &Key, msg: &[u8]) -> Result<Vec<u8>, Unspecified> {
+pub fn encrypt(
+    rng: &rand::SecureRandom, n: untrusted::Input, e: untrusted::Input,
+    msg: untrusted::Input) -> Result<Vec<u8>, Unspecified>
+{
+    let pub_key = Key::from_modulus_and_exponent(
+        n, e, bits::BitLength(1024), bits::BitLength(2048), 3)?;
+    let msg = msg.as_slice_less_safe();
     let k = pub_key.modulus_len();
     let h_len = SHA1.output_len;
     let m_len = msg.len();
@@ -48,7 +55,7 @@ pub fn encrypt(rng: &rand::SecureRandom, pub_key: &Key, msg: &[u8]) -> Result<Ve
 
 #[cfg(test)]
 mod test {
-    use {bits, test};
+    use test;
     use super::*;
     use untrusted;
 
@@ -70,11 +77,8 @@ mod test {
             let e = test_case.consume_bytes("e");
             let e = untrusted::Input::from(&e);
 
-            let key = Key::from_modulus_and_exponent(
-                n, e, bits::BitLength(1024), bits::BitLength(2048), 3
-            ).expect("Failed to build public key");
-
             let msg = test_case.consume_bytes("Plaintext");
+            let msg = untrusted::Input::from(&msg);
 
             let encrypted = test_case.consume_bytes("Ciphertext");
 
@@ -82,8 +86,7 @@ mod test {
 
             let actual_encrypted = encrypt(
                 &test::rand::FixedSliceRandom { bytes: &salt },
-                &key,
-                msg.as_slice()
+                n, e, msg
             ).expect("Failed to encrypt");
             assert_eq!(actual_encrypted.as_slice(), encrypted.as_slice());
 
